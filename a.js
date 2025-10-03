@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 inpStr = require("prompt-sync")();
 
+//may error dito
 var data = {};
 
 function convertToCsv(arr) {
