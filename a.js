@@ -4,8 +4,8 @@ const fs = require("fs");
 const path = require("path");
 inpStr = require("prompt-sync")();
 
-//may error dito
-var data = {};
+
+var data = [];
 
 function convertToCsv(arr) {
     if (arr.length === 0) {
@@ -48,7 +48,7 @@ function mainProg() {
                 const csvString = convertToCsv(data);
 
                 // Use fs.writeFile to save the file
-                // The asynchronous method is preferred to avoid blocking the main thread.
+                // The asynchronous method is preferred to avoid blocking the main thread. //may error sa filepath                
                 fs.writeFile(filePath, csvString, 'utf8', (err) => {
                     if (err) {
                         console.error('An error occurred while writing the file:', err);
