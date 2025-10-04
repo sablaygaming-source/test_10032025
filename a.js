@@ -1,11 +1,24 @@
 //this is a simple test of java
 
-const fs = require("fs");
-const path = require("path");
-inpStr = require("prompt-sync")();
+
+const fs = require('fs').promises; // Use the Promise-based API for fs
+const readline = require('readline');
 
 
-var data = [];
+// Setup the readline interface
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+/**
+ * Wraps rl.question in a Promise for use with async/await.
+ */
+function askQuestion(query) {
+    return new Promise(resolve => rl.question(query, resolve));
+}
+
+var globalData = [];
 
 function convertToCsv(arr) {
     if (arr.length === 0) {
@@ -22,46 +35,83 @@ function convertToCsv(arr) {
     return `${headers}\n${rows}`;
 }
 
+function parseCsv(csvString) {
+    // Split the string into lines (rows)
+    const lines = csvString.trim().split('\n');
+
+    // Get the headers from the first line and split by commas
+    const headers = lines[0].split(',');
+
+    // Process the remaining lines (data)
+    const data = lines.slice(1).map(line => {
+        const values = line.split(',');
+        const obj = {};
+
+        // Map header names to values for each object
+        for (let i = 0; i < headers.length; i++) {
+            obj[headers[i].trim()] = values[i].trim();
+        }
+
+        return obj;
+    });
+
+    return data;
+}
 
 
-
-function mainProg() {
+async function mainProg() {
 
     console.log("\nTHIS PROGRAM ADD AND OPEN CSVFILE");
 
     while (true) {
 
         console.log("\nMenu a add, o open, q exit");
-        pressKey = inpStr();
+        pressKey = await askQuestion("input: ");
         switch (pressKey) {
 
-
-
             case "a":
-                console.log("inputing data name and address");
-                for (let i = 0; i < 2; i += 1) {
-                    varName = inpStr("Name: ");
-                    varAdd = inpStr("Address: ");
-                    data.push({ Name: varName, Add: varAdd });
+                console.log("start to add");
+                for (i = 0; i < 2; i += 1) {
+                    varName = await askQuestion("Name: ");
+                    varAddress = await askQuestion("Address: ");
+                    //console.log("\nvarName ", varName, "\nvarAddress ", varAddress);
 
+                    globalData.push({ Name: varName, Address: varAddress });
                 }
-                const csvString = convertToCsv(data);
 
-                // Use fs.writeFile to save the file
-                // The asynchronous method is preferred to avoid blocking the main thread. //may error sa filepath                
-                fs.writeFile(filePath, csvString, 'utf8', (err) => {
-                    if (err) {
-                        console.error('An error occurred while writing the file:', err);
-                        return;
-                    }
+                const dataInput = convertToCsv(globalData);
+                filePath = "./user.csv";
 
-                    console.log('CSV file has been saved successfully!');
-                    console.log(`File location: ${filePath}`);
-                });
+                //console.log("sample input ", dataInput, "\n\nhowever data is ", data);
+                try {
+                    await fs.writeFile(filePath, dataInput);
+                    console.error('Sucesfully save it on ', filePath);
+                } catch (error) {
+                    console.error('An error occurred:', error.message);
+                } finally {
+                    //..other code here
+                }
+                break;
+            case "o":
+                filePath = "./user.csv";
 
+                try {
+
+                    // Read the file asynchronously
+                    data = await fs.readFile(filePath, 'utf8');
+                    globalData = parseCsv(data);
+                    console.log(`\nfinal result of `, globalData);
+                } catch (error) {
+                    console.log('error: ', error.message);
+                }
+
+
+                break;
         }
+
         if ("q" == pressKey) {
             console.log("\nexiting prog");
+            rl.close();
             break;
         }
     }
