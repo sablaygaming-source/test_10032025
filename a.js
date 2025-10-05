@@ -65,7 +65,7 @@ async function mainProg() {
 
     while (true) {
 
-        console.log("\nMenu a add, o open, q exit");
+        console.log("\nMenu a add, o open, q exit ver 2");
         pressKey = await askQuestion("input: ");
         switch (pressKey) {
 
@@ -100,7 +100,7 @@ async function mainProg() {
                     // Read the file asynchronously
                     data = await fs.readFile(filePath, 'utf8');
                     globalData = parseCsv(data);
-                    console.log(`\nfinal result of `, globalData);
+                    console.log(`\nfinal result from open mode data is \n`, globalData);
                 } catch (error) {
                     console.log('error: ', error.message);
                 }
